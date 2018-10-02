@@ -1,14 +1,9 @@
-Adafruit-Blinka==0.2.7
-adafruit-circuitpython-busdevice==2.2.5
-adafruit-circuitpython-rfm69==1.2.0
-Adafruit-GPIO==1.0.3
-Adafruit-PureIO==0.2.3
+
 click==6.7
 Flask==1.0.2
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
-pkg-resources==0.0.0
 rpi-ws281x==4.0.0
 RPi.GPIO==0.6.3
 spidev==3.2
