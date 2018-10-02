@@ -6,5 +6,4 @@ Jinja2==2.10
 MarkupSafe==1.0
 rpi-ws281x==4.0.0
 RPi.GPIO==0.6.3
-spidev==3.2
 Werkzeug==0.14.1
