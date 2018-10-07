@@ -1,75 +1,76 @@
 {% extends "layout.html" %} {% block body %}
-<!-- Web page goes here -->
-<!-- TBD: Bluebird background color -->
-<!-- Live Stream -->
-<div class="container pt-4 d-flex justify-content-center">
-  <!-- <img class="border border-primary rounded" src= "http://192.168.15.22:8081/?action=stream" w/> -->
-  <img class="border border-primary rounded" src="http://raspberrypi.home:8081/" />
-</div>
-<!--  Buttons -->
-<div class="container pt-4 mt-4">
-  <div class="row">
-    <div class="col d-flex justify-content-end">
-      <button type="button" id="close" class="btn btn-lg btn-warning">Close</button>
+    <!-- Web page goes here -->
+    <!-- TBD: Bluebird background color -->
+    <!-- Live Stream -->
+    <div class="container pt-4 d-flex justify-content-center">
+        <!-- <img class="border border-primary rounded" src= "http://192.168.15.22:8081/?action=stream" w/> -->
+        <img class="border border-primary rounded" src="http://raspberrypi.home:8081/"/>
     </div>
-    <div class="col d-flex justify-content-start">
-      <button type="button" id="open" class="btn btn-lg btn-primary">Open</button>
+    <!--  Buttons -->
+    <div class="container pt-4 mt-4">
+        <div class="row">
+            <div class="col d-flex justify-content-center">
+                <button type="button" id="stop" class="btn btn-lg btn-danger">Stop</button>
+            </div>
+            <div class="col d-flex justify-content-center">
+                <button type="button" id="close" class="btn btn-lg btn-warning">Close</button>
+            </div>
+            <div class="col d-flex justify-content-center">
+                <button type="button" id="open" class="btn btn-lg btn-primary">Open</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-<!-- Handle buttons -->
-<script type="text/javascript">
-$(document).ready(function() {
-  console.log("document ready");
-  // Clicked to close the door.
-  $('#close').click(function() {
-    console.log("clicked on close");
-    open_close_door(0);
-  });
-  // Clicked to open the door.
-  $('#open').click(function() {
-    console.log("clicked on open");
-    open_close_door(1);
-  });
-});
+    <!-- Handle buttons -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            console.log("document ready");
+            // Clicked to close the door.
+            var CLOSE = 0, OPEN = 1,STOP = 2
+            $('#close').click(function () {
+                console.log("clicked on close");
+                open_close_door(CLOSE);
+            });
+            // Clicked to open the door.
+            $('#open').click(function () {
+                console.log("clicked on open");
+                open_close_door(OPEN);
+            });
+            // Clicked to stop opening or closing
+            $('#stop').click(function () {
+                console.log("clicked on stop");
+                open_close_door(STOP);
+            });
+        });
 
-function open_close_door(open) {
-  input_data = JSON.stringify({ open: open});
+        function open_close_door(action_to_do) {
+            var input_data = JSON.stringify({action: action_to_do});
 
-  console.log(input_data);
-  // Use ajax / POST to send the dateToPlot input vars to the server Flask route.
-  // URL if on Raspberry Pi:
-  // theURL = "http://raspberrypi:5000/getData"
-  // URL if on Mac:
-   theURL = "http://raspberrypi.home:8519/get_open_close"
-  //theURL = "http://greenie:5000/getData"
-  var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": theURL,
-    "method": "POST",
-    "headers": {
-      "Content-Type": "application/json",
-    },
-    "processData": false,
-    "data": input_data
-  }
-  $.ajax(settings).done(function(response) {
-    // TBD: If there is no data, a -1 is returned for response.
-    // That means there is nothing to plot.  The graph area should
-    // have something like the text "no data available"
-      console.log(response);
-  });
-  if (open){
-    console.log("opening the door");
-  }
-  else {
-    console.log("closing the door");
-  }
+            console.log(input_data);
+            // Use ajax / POST to send the dateToPlot input vars to the server Flask route.
+            // URL if on Raspberry Pi:
+            // theURL = "http://raspberrypi:5000/getData"
+            // URL if on Mac:
+            var theURL = "http://raspberrypi.home:8519/get_open_close"
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": theURL,
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                },
+                "processData": false,
+                "data": input_data
+            }
+            $.ajax(settings).done(function (response) {
+                // TBD: If there is no data, a -1 is returned for response.
+                // That means there is nothing to plot.  The graph area should
+                // have something like the text "no data available"
+                console.log(response);
+            });
 
-}
+        }
 
 
-
-</script>
+    </script>
 {% endblock %}
