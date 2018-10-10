@@ -18,39 +18,77 @@
             <div class="col d-flex justify-content-center">
                 <button type="button" id="open" class="btn btn-lg btn-primary">Open</button>
             </div>
+            <div class="form-group">
+                <label for="seconds"> Seconds </label>
+                <select multiple class="form-control" id="seconds">
+                    <option value=1> 1</option>
+                    <option> 2</option>
+                    <option> 3</option>
+                    <option> 4</option>
+                    <option> 5</option>
+                    <option> 6</option>
+                    <option> 7</option>
+                    <option> 8</option>
+                    <option> 9</option>
+                    <option> 10</option>
+                    <option> 11</option>
+                    <option> 12</option>
+                    <option> 13</option>
+                    <option> 14</option>
+                    <option> 15</option>
+                    <option> 16</option>
+                    <option> 17</option>
+                    <option> 18</option>
+                    <option> 19</option>
+                    <option> 20</option>
+                    <option> 21</option>
+                    <option> 22</option>
+                    <option> 23</option>
+                    <option> 24</option>
+                    <option> 25</option>
+                    <option> 26</option>
+                    <option> 27</option>
+                    <option> 28</option>
+                    <option> 29</option>
+                    <option> 30</option>
+                </select>
+            </div>
         </div>
     </div>
     <!-- Handle buttons -->
     <script type="text/javascript">
         $(document).ready(function () {
+            var nSeconds = 1
             console.log("document ready");
             // Clicked to close the door.
-            var CLOSE = 0, OPEN = 1,STOP = 2
+            var CLOSE = 0, OPEN = 1, STOP = 2
             $('#close').click(function () {
                 console.log("clicked on close");
-                open_close_door(CLOSE);
+                open_close_door(CLOSE, nSeconds);
             });
             // Clicked to open the door.
             $('#open').click(function () {
                 console.log("clicked on open");
-                open_close_door(OPEN);
+                open_close_door(OPEN, nSeconds);
             });
             // Clicked to stop opening or closing
             $('#stop').click(function () {
                 console.log("clicked on stop");
-                open_close_door(STOP);
+                open_close_door(STOP, nSeconds);
+            });
+            $('#seconds').click(function () {
+                nSeconds = $('#seconds').val();
+                console.log('nseconds: ' + nSeconds);
             });
         });
 
-        function open_close_door(action_to_do) {
-            var input_data = JSON.stringify({action: action_to_do});
+        function open_close_door(action_to_do, nSecs) {
+            console.log('action: ' + action_to_do + 'seconds: ' + nSecs);
+            var input_data = JSON.stringify({action: action_to_do, seconds: nSecs});
 
             console.log(input_data);
-            // Use ajax / POST to send the dateToPlot input vars to the server Flask route.
-            // URL if on Raspberry Pi:
-            // theURL = "http://raspberrypi:5000/getData"
             // URL if on Mac:
-            var theURL = "http://raspberrypi.home:8519/get_open_close"
+            var theURL = "http://50.46.122.171:8519/get_open_close"
             var settings = {
                 "async": true,
                 "crossDomain": true,

@@ -12,7 +12,7 @@ GPIO.setup(open_pin, GPIO.OUT)
 GPIO.setup(close_pin, GPIO.OUT)
 
 
-def action_on_actuator(action_to_do):
+def action_on_actuator(action_to_do, nSeconds):
     """0 = close, 1 = open, 2 = stop"""
     if action_to_do == 1 or action_to_do == 0:
         if action_to_do == 1:
@@ -20,7 +20,7 @@ def action_on_actuator(action_to_do):
         else:
             pin = close_pin
         GPIO.output(pin, True)
-        time.sleep(28)
+        time.sleep(int(nSeconds[0]))
         GPIO.output(pin, False)
         return True
     #  Doesn't hurt to turn off both pins..
@@ -38,8 +38,8 @@ def home():
 
 @app.route('/get_open_close', methods=['POST'])
 def get_open_close():
-    which_button = request.get_json()
-    if action_on_actuator(which_button['action']):
+    action= request.get_json()
+    if action_on_actuator(action['action'], action['seconds']):
         resp = jsonify(success=True)
     else:
         resp = jsonify(success=False)
