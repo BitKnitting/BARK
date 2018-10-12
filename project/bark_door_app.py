@@ -46,9 +46,9 @@ def get_open_close():
     return resp
 
 
-if __name__ == "__main__":
-    # When debug=True, the debug service restarts after changes are made.
-    # This is very handy!
-    app.run(host='raspberrypi.home', port=8519, debug=True, threaded=True)
-    # host = localhost when running on mac
-    # app.run(debug=True, host='localhost', port=9999)
+# if __name__ == "__main__":
+#     # When debug=True, the debug service restarts after changes are made.
+#     # This is very handy!
+#     app.run(host='raspberrypi.home', port=8519, threaded=True)
+#     # host = localhost when running on mac
+#     # app.run(debug=True, host='localhost', port=9999oooo

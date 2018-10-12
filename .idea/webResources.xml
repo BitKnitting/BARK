@@ -5,7 +5,7 @@
       <entry url="file://$PROJECT_DIR$">
         <entryData>
           <resourceRoots>
-            <path value="file://$PROJECT_DIR$/flask_server/static" />
+            <path value="file://$PROJECT_DIR$/project/static" />
           </resourceRoots>
         </entryData>
       </entry>
