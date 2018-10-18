@@ -12,6 +12,7 @@ closed_door_distance = int(os.getenv('close_door_mm'))
 
 # Map possible GPIO keys to their board instance.
 def get_board(pin):
+    assert pin == '18' or pin == '4'
     return {'18': board.D18,
             '4': board.D4
             }[pin]
