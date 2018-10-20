@@ -1,13 +1,16 @@
 import os
 
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from flask_bcrypt import check_password_hash
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, login_user, login_required
 from login_user import User, LoginForm
 
+from actuator import Actuator
+
 app = Flask(__name__)
 Bootstrap(app)
+
 
 # Secret key is needed because we are using sessions...
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -15,6 +18,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 # Now set the html page to be displayed.
 login_manager.login_view = 'login'
+
+actuator = Actuator()
+
+
+def action_on_actuator(action_to_do):
+    actuator.button_state = action_to_do
+    actuator.handle_button_press()
 
 
 #
@@ -28,6 +38,8 @@ def load_user(userid):
     return user
 
 
+#
+# Here we show the video feed as well as ability to open/close/stop the actuator that controls door movement.
 @app.route('/dashboard')
 @app.route('/')
 @app.route('/index')
@@ -49,3 +61,11 @@ def login():
         else:
             flash("your password is incorrect!", "error")
     return render_template('login.html', form=form)
+
+
+@app.route('/get_open_close', methods=['POST'])
+def get_open_close():
+    action = request.get_json()
+    action_on_actuator(action['action'])
+    resp = jsonify(success=True)
+    return resp

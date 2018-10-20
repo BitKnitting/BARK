@@ -25,4 +25,54 @@
         </div>
     </div>
 
+    <!-- Handle buttons -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            console.log("document ready");
+            // Clicked to close the door.
+            var CLOSE = 0, OPEN = 1, STOP = 2
+            $('#close').click(function () {
+                console.log("clicked on close");
+                open_close_door(CLOSE);
+            });
+            // Clicked to open the door.
+            $('#open').click(function () {
+                console.log("clicked on open");
+                open_close_door(OPEN);
+            });
+            // Clicked to stop opening or closing
+            $('#stop').click(function () {
+                console.log("clicked on stop");
+                open_close_door(STOP);
+            });
+        });
+
+        function open_close_door(action_to_do) {
+            console.log('action: ' + action_to_do );
+            var input_data = JSON.stringify({action: action_to_do});
+
+            console.log(input_data);
+            // URL if on Mac:
+            var theURL = "http://raspberrypi.home:8519/get_open_close"
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": theURL,
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                },
+                "processData": false,
+                "data": input_data
+            }
+            $.ajax(settings).done(function (response) {
+                // TBD: If there is no data, a -1 is returned for response.
+                // That means there is nothing to plot.  The graph area should
+                // have something like the text "no data available"
+                console.log(response);
+            });
+        }
+    </script>
+
 {% endblock %}
