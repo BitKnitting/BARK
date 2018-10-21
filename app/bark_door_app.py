@@ -4,13 +4,16 @@ from flask import Flask, render_template, redirect, url_for, request, jsonify, f
 from flask_bcrypt import check_password_hash
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, login_user, login_required
-from login_user import User, LoginForm
 
 from actuator import Actuator
+from handle_logging_lib import HandleLogging
+from login_user import User, LoginForm
 
+# Todo: notification / message on phone and Mac when dog near door.  Turn on/off from UI so not notified when people open/close.
+# Todo: open/close/stop works on internet.
+# Todo: video feed works on internet.
 app = Flask(__name__)
 Bootstrap(app)
-
 
 # Secret key is needed because we are using sessions...
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -20,6 +23,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 actuator = Actuator()
+log = HandleLogging()
 
 
 def action_on_actuator(action_to_do):
@@ -69,3 +73,6 @@ def get_open_close():
     action_on_actuator(action['action'])
     resp = jsonify(success=True)
     return resp
+
+
+

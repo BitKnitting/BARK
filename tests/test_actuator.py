@@ -6,7 +6,7 @@ import adafruit_vl6180x
 import board
 import busio
 import digitalio
-
+# Todo - clean up
 from actuator import Actuator
 
 # Determined through experiment the door is closed when the distance sensor reads close_door_mm mm from the
@@ -100,3 +100,11 @@ def test_button_value():
     assert True == actuator.button_check(2)
     assert False == actuator.button_check(3)
     assert False == actuator.button_check(3)
+
+def test_timeout():
+    seconds_to_open_door = 5
+    timeout_start = time.time()
+    while time.time() < timeout_start + seconds_to_open_door:
+        pass
+    assert True
+

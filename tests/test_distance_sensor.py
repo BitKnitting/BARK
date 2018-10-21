@@ -7,7 +7,7 @@ import adafruit_vl6180x
 import board
 import busio
 
-
+# Todo - clean up
 def test_i2c():
     i2c = busio.I2C(board.SCL, board.SDA)
     assert isinstance(i2c, busio.I2C)
