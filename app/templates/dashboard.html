@@ -49,15 +49,14 @@
         });
 
         function open_close_door(action_to_do) {
-            console.log('action: ' + action_to_do );
+            console.log('action: ' + action_to_do);
             var input_data = JSON.stringify({action: action_to_do});
 
             console.log(input_data);
             // URL...
-            var theURL = "http://raspberrypi.home:8519/get_open_close"
+            var theURL = "http://50.46.122.171:8519/get_open_close"
             var settings = {
                 "async": true,
-                "crossDomain": true,
                 "url": theURL,
                 "method": "POST",
                 "headers": {

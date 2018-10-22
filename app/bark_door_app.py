@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from flask_bcrypt import check_password_hash
 from flask_bootstrap import Bootstrap
+from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required
 
 from actuator import Actuator
@@ -10,10 +11,13 @@ from handle_logging_lib import HandleLogging
 from login_user import User, LoginForm
 
 # Todo: notification / message on phone and Mac when dog near door.  Turn on/off from UI so not notified when people open/close.
-# Todo: open/close/stop works on internet.
-# Todo: video feed works on internet.
+
 app = Flask(__name__)
 Bootstrap(app)
+#
+# I use the Flask-CORS module so that we can access this over the router's IP.
+# see https://flask-cors.readthedocs.io/en/latest/
+CORS(app)
 
 # Secret key is needed because we are using sessions...
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
