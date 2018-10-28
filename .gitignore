@@ -1,5 +1,8 @@
 # Private environment variables.
+# used by python-dotenv
 .env
+# couldn't get python-dev to work with systemd, so using environment file
+environment_BARK
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

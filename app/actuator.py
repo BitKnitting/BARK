@@ -7,7 +7,8 @@ import board
 import busio
 import digitalio
 
-from handle_logging_lib import HandleLogging
+
+from motion_detector import MotionDetector
 
 
 # The Actuator class controls the linear actuator by opening, closing, or stopping it.
@@ -17,19 +18,29 @@ from handle_logging_lib import HandleLogging
 # The Rasp Pi talks to the two relays that control opening/closing the Actuator through two GPIO pins.
 # I use the .env file to provide these as environment variables, along with a few other environment
 # variables.
-class Actuator:
-    def __init__(self, button_state=0):
-        Button_states = namedtuple('Button_states', ['close', 'open', 'stop'])
-        self.button_states = Button_states(0, 1, 2)
-        self._button_state = button_state
-        Door_states = namedtuple('Door_states', ['closing', 'opening', 'idle'])
-        self.door_states = Door_states(0, 1, 2)
+class Actuator(MotionDetector):
+    Button_states = namedtuple('Button_states', ['close', 'open', 'stop'])
+    button_states = Button_states(0, 1, 2)
+    Door_states = namedtuple('Door_states', ['closing', 'opening', 'idle'])
+    door_states = Door_states(0, 1, 2)
+
+    def __init__(self):
+        # Initialize the Motion detector.
+        super().__init__()
+        # Set the initial button and door states.
+        self._button_state = self.button_states.stop
         self._door_state = self.door_states.idle
+        # Get the info from the environment on pins and distance.
         self.open_pin = self._init_pin(os.getenv('open_pin'))
         self.close_pin = self._init_pin(os.getenv('close_pin'))
         self.closed_door_distance = int(os.getenv('close_door_mm'))
         self.sensor = self._init_sensor()  # Do the Adafruit goo necessary to use the VL6180X BOB.
-        self.log = HandleLogging()  # A simple logging library I wrote that works ok for me.
+
+    @property
+    def door_is_closed(self):
+        if self.sensor.range <= self.closed_door_distance + 5 and self._door_state == self.door_states.idle:
+            return True
+        return False
 
     # Assumes a UI with 3 buttons.  close, open, stop.
     @property
@@ -42,31 +53,6 @@ class Actuator:
         # From above, close = 0 (the least) and stop = 2 (the most).  Value between min/max.
         assert self.button_states.close <= value <= self.button_states.stop
         self._button_state = value
-
-    def handle_button_press(self):
-        """
-        Given the button_state, either open, close, or stop opening/closing the sliding door.
-        (once again) check to make sure we have a valid button state.
-        """
-        # Take action if the door state is idle or the Stop button was pressed.
-        # This means the stop button must be clicked before changing from open to close (or close to open)
-        # Also, multiple button clicks to the same button (unless it's the stop button) will be ignored.
-        if self._door_state == self.door_states.idle or self._button_state == self.button_states.stop:
-            if self._button_state == self.button_states.close:
-                self.log.print("...close door")
-                self._close_door()
-            elif self._button_state == self.button_states.open:
-                self.log.print("...open door")
-                self._open_door()
-            else:
-                self.log.print("...stop")
-                self._stop()
-            return True
-
-        self.log.print(
-            "_handle_button_press(): nada.... door state {} button state {}".format(
-                self.door_state_str(self.door_state_str(self._door_state)), self.button_state_str(self._button_state)))
-        return False
 
     def _close_door(self):
         if self._door_state == self.door_states.idle:
@@ -95,7 +81,6 @@ class Actuator:
                 while self.sensor.range > self.closed_door_distance:
                     pass
                 self.close_pin.value = False
-            time.sleep(4)  # Wait a few seconds so actuator can "calm down."
             # Open the door enough for the dogs to get out.
             seconds_to_open_door = int(os.getenv('seconds_to_open_door'))
             # I am assuming greater than 60 seconds to open the actuator is an error.
@@ -115,28 +100,39 @@ class Actuator:
         self._button_state = self.button_states.stop
         self.open_pin.value = False
         self.close_pin.value = False
+        # Here the door is idle, but it could be partially opened.
         self._door_state = self.door_states.idle
         self.log.print('_stop(): In Stop.  Setting GPIO pins to False.  Set door_state back to IDLE')
 
     # Initialize the GPIO pins.  For now, I use 18 and 4.  Keeping in my Adafruit's Blinka
     # layer for Rasp Pi uses BCM numbering.
     def _init_pin(self, pin_str):
-        board_pin = {'18': board.D18,
-                     '4': board.D4
-                     }[pin_str]
-        pin = digitalio.DigitalInOut(board_pin)
-        pin.direction = digitalio.Direction.OUTPUT
-        return pin
+        try:
+            board_pin = {'18': board.D18,
+                         '4': board.D4
+                         }[pin_str]
+            pin = digitalio.DigitalInOut(board_pin)
+            pin.direction = digitalio.Direction.OUTPUT
+            return pin
+
+        except KeyError:
+            self.log.print('KeyError: pin **{}** not found in dict of pins.'.format(pin_str))
+        return None
 
     # Adafruit's LIDAR sensor is used to figure out how far the door is from being closed.
     # It has a short distance detection range of a little over 100mm.
     def _init_sensor(self):
-        i2c = busio.I2C(board.SCL, board.SDA)
-        return adafruit_vl6180x.VL6180X(i2c)
+        try:
+            i2c = busio.I2C(board.SCL, board.SDA)
+            sensor = adafruit_vl6180x.VL6180X(i2c)
+            return sensor
+        except RuntimeError as e:
+            self.log.print('{}'.format(e))
+        return None
 
     # Make reading the logfile's entry on door state more readable.
     def door_state_str(self, door_state):
-        if door_state not in self.door_states:
+        if door_state not in self._door_states:
             return str(door_state)
         return {self.door_states.closing: 'CLOSING',
                 self.door_states.opening: 'OPENING',

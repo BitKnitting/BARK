@@ -6,14 +6,13 @@ from flask_bootstrap import Bootstrap
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required
 
-from actuator import Actuator
-from handle_logging_lib import HandleLogging
 from login_user import User, LoginForm
-
-# Todo: notification / message on phone and Mac when dog near door.  Turn on/off from UI so not notified when people open/close.
+from sliding_door import SlidingDoor
 
 app = Flask(__name__)
 Bootstrap(app)
+# Now add the class for opening and closing the door.
+door = SlidingDoor()
 #
 # I use the Flask-CORS module so that we can access this over the router's IP.
 # see https://flask-cors.readthedocs.io/en/latest/
@@ -25,14 +24,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 # Now set the html page to be displayed.
 login_manager.login_view = 'login'
-
-actuator = Actuator()
-log = HandleLogging()
-
-
-def action_on_actuator(action_to_do):
-    actuator.button_state = action_to_do
-    actuator.handle_button_press()
 
 
 #
@@ -74,9 +65,10 @@ def login():
 @app.route('/get_open_close', methods=['POST'])
 def get_open_close():
     action = request.get_json()
-    action_on_actuator(action['action'])
+    door.do_action(action['action'])
     resp = jsonify(success=True)
     return resp
 
 
-
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8519, debug=True)

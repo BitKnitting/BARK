@@ -1,14 +1,18 @@
-o[Unit]
+[Unit]
 Description=Open/close sliding dogs so dogs can go out.
 # Don't start the service until the network is up and running
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/pi/projects/BARK/flask_server/bark_door_app.py
+# ExecStart=/usr/bin/python3 /home/pi/projects/BARK/flask_server/bark_door_app.py
+
+# ExecStart=/home/pi/projects/BARK/venv/bin/flask  run --host=raspberrypi.home --port=8519
+EnvironmentFile=/home/pi/projects/BARK/environment_BARK
+ExecStart=/home/pi/projects/BARK/venv/bin/python3 /home/pi/projects/BARK/app/bark_door_app.py
 Restart=on-failure
 User=pi
 
 [Install]
-# Components of this application should be started at boot time
+# Start after all the networking stuff....
 WantedBy=multi-user.target
