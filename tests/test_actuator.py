@@ -6,7 +6,7 @@ import adafruit_vl6180x
 import board
 import busio
 import digitalio
-# Todo - clean up
+
 from actuator import Actuator
 
 # Determined through experiment the door is closed when the distance sensor reads close_door_mm mm from the

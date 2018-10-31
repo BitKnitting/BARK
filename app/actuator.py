@@ -7,26 +7,23 @@ import board
 import busio
 import digitalio
 
+from handle_logging_lib import HandleLogging
 
-from motion_detector import MotionDetector
 
+# Todo: app freezes after calls to range sensor.  This was working before, but now freezes.
 
 # The Actuator class controls the linear actuator by opening, closing, or stopping it.
-# It works with Adafruit's VL6180X Lidar sensor.  The sensor is used to provide feedback on closing.
-# Close to the place where the door closes, there is a obstruction about 30mm from the sensor.  When
-# the sensor tells us the door is 30mm away, closing the door stops.
-# The Rasp Pi talks to the two relays that control opening/closing the Actuator through two GPIO pins.
-# I use the .env file to provide these as environment variables, along with a few other environment
-# variables.
-class Actuator(MotionDetector):
+
+class Actuator():
+    # Class variables shared by all instances
     Button_states = namedtuple('Button_states', ['close', 'open', 'stop'])
     button_states = Button_states(0, 1, 2)
     Door_states = namedtuple('Door_states', ['closing', 'opening', 'idle'])
     door_states = Door_states(0, 1, 2)
 
     def __init__(self):
-        # Initialize the Motion detector.
-        super().__init__()
+        self.log = HandleLogging()
+        # Variables unique to each instance
         # Set the initial button and door states.
         self._button_state = self.button_states.stop
         self._door_state = self.door_states.idle
@@ -34,7 +31,17 @@ class Actuator(MotionDetector):
         self.open_pin = self._init_pin(os.getenv('open_pin'))
         self.close_pin = self._init_pin(os.getenv('close_pin'))
         self.closed_door_distance = int(os.getenv('close_door_mm'))
-        self.sensor = self._init_sensor()  # Do the Adafruit goo necessary to use the VL6180X BOB.
+        self.sensor = self._init_sensor()
+
+    def _init_sensor(self):
+        try:
+            i2c = busio.I2C(board.SCL, board.SDA)
+            sensor = adafruit_vl6180x.VL6180X(i2c)
+            self.log.print('Sensor has been initialized.')
+            return sensor
+        except RuntimeError as e:
+            self.log.print('{}'.format(e))
+        return None
 
     @property
     def door_is_closed(self):
@@ -53,6 +60,43 @@ class Actuator(MotionDetector):
         # From above, close = 0 (the least) and stop = 2 (the most).  Value between min/max.
         assert self.button_states.close <= value <= self.button_states.stop
         self._button_state = value
+
+    def do_action(self, button_action):
+        # Making sure we get a button action we know how to handle.
+        if button_action not in self.button_states:
+            self.log.print("The button action {} is not one of the button states.".format(button_action))
+            return
+            # Take action if the door state is idle or the Stop button was pressed.
+            # The stop button allows going from open to close (or close to open) before the full time it would take
+            # to do so.  Multiple button clicks to the same button (unless it's the stop button) will be ignored.
+        if self._door_state == self.door_states.idle or button_action == self.button_states.stop:
+            # The door state is idle.  Was the CLOSE button pressed?
+            if button_action == self.button_states.close:
+                # Set the button state to closing.
+                self._button_state = self.button_states.close
+                self.log.print("...closing door")
+                # Close the door.
+                self._close_door()
+            # The door state is idle.  Was the OPEN button pressed?
+            elif button_action == self.button_states.open:
+                # Set the button state to opening.
+                self._button_state = self.button_states.open
+                self.log.print("...opening door")
+                # Open the door.
+                self._open_door()
+            # The STOP button was pressed.
+            else:
+                # Set the button state to stopped.
+                self._button_state = self.button_states.stop
+                self.log.print("...stop")
+                # Stop opening or closing, reset whatever needs to be reset.
+                self._stop()
+        # Multiple clicks to OPEN or CLOSED while in the process of opening or closing.
+        else:
+            self.log.print(
+                "_handle_button_press(): nada.... door state {} button state {}".format(
+                    self.door_state_str(self.door_state_str(self.door_state)),
+                    self.button_state_str(self._button_state)))
 
     def _close_door(self):
         if self._door_state == self.door_states.idle:
@@ -117,17 +161,6 @@ class Actuator(MotionDetector):
 
         except KeyError:
             self.log.print('KeyError: pin **{}** not found in dict of pins.'.format(pin_str))
-        return None
-
-    # Adafruit's LIDAR sensor is used to figure out how far the door is from being closed.
-    # It has a short distance detection range of a little over 100mm.
-    def _init_sensor(self):
-        try:
-            i2c = busio.I2C(board.SCL, board.SDA)
-            sensor = adafruit_vl6180x.VL6180X(i2c)
-            return sensor
-        except RuntimeError as e:
-            self.log.print('{}'.format(e))
         return None
 
     # Make reading the logfile's entry on door state more readable.

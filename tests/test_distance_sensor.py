@@ -7,7 +7,7 @@ import adafruit_vl6180x
 import board
 import busio
 
-# Todo - clean up
+
 def test_i2c():
     i2c = busio.I2C(board.SCL, board.SDA)
     assert isinstance(i2c, busio.I2C)
@@ -57,6 +57,12 @@ def test_distance():
     assert (0 < sensor.range <= 255)
 
 
+# Check if there is any problem constantly instantiating stuff.
+def test_repeat_distance():
+    for _ in range(20):
+        test_distance()
+
+
 # I could see a use for knowing the light level and then turning on a light.
 # Currently not using.
 def test_lux():
@@ -67,7 +73,4 @@ def test_lux():
     # https://www.st.com/resource/en/datasheet/vl6180x.pdf
     # Table 1, Technical specification
     # < 1 Lux up to 100 kLux(2) 16-bit output(3) 8 manual gain settings
-    assert (0 < lux <= 100000)
-
-
-
+    assert (0 <= lux <= 100000)
