@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="pi@50.46.122.171:22">
+  <component name="PublishConfigData" autoUpload="Always" serverName="pi@raspberrypi.lan:22">
     <serverData>
       <paths name="pi@50.46.122.171:22">
         <serverdata>
@@ -9,10 +9,17 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="pi@raspberrypi.home:22 (1)">
+      <paths name="pi@raspberrypi.lan">
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/pycharm_project_950" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="pi@raspberrypi.lan:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_280" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
