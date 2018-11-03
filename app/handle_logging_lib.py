@@ -15,7 +15,7 @@ class HandleLogging:
         # info, however returned info on this module.  So used inspect.
         logging.basicConfig(filename=logfile, level=logging.DEBUG,
                             format='%(asctime)s %(levelname)s  %(message)s',
-                            datefmt='%b %-d,%Y %H:%M')
+                            datefmt='%b %-d,%Y %H:%M:%S')
 
     def _make_message(self, message):
         # getting to the caller's caller since
