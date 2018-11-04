@@ -1,5 +1,27 @@
-import os
+#
+# This is the "main" code for the BARK project.  The BARK project is a Flask app that:
+# - uses flask Bootstrap 4 to enhance the look of the UI - which is two web pages.
+#   one web page, templates/login.html, is shown to the user if Flask is not able
+#   detect the user is logged in.  If the user is not logged in, flask_login goop
+#   as well as forms are used to get the password from the user and login.  Info
+#   for logging in is contained within the environment file.  While in pycharm, the
+#   environment file is .env.  If running as a systemd service, the environment file
+#   is noted in BARK.service (environment_BARK).  The environment files are not copied
+#   to GitHub since they contain site specific information.  The other web page
+#   shows a live video stream plus buttons to control opening and closing the sliding
+#   door.
+#   some flask goodies that i found very useful but hadn't used before, so there
+#   was a lot of good learning I relished in absorbing from doing this project.
+#
+#   The code that handles sending commands to the Raspberry Pi pins and understanding
+#   what needs to happen is in sliding_door.py as the SlidingDoor class.
+#
+#   I've started evolving a logging class - HandleLogging - that has been very useful
+#   logging what is going on in a log file so I can review when stuff doesn't run
+#   as expected.
+#
 
+import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from flask_bcrypt import check_password_hash
 from flask_bootstrap import Bootstrap
