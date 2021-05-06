@@ -14,7 +14,7 @@ dominate==2.3.4
 Flask==1.0.2
 Flask-Bcrypt==0.7.1
 Flask-Bootstrap4==4.0.2
-Flask-Cors==3.0.6
+Flask-Cors==3.0.9
 Flask-Login==0.4.1
 Flask-WTF==0.14.2
 idna==2.7
